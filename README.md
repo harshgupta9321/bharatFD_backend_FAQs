@@ -1,149 +1,191 @@
-# FAQ Backend API
+# Bharat FAQ Backend API
 
-This is the backend API for managing FAQs (Frequently Asked Questions). It supports multilingual FAQs and uses Redis for caching. The API provides endpoints for fetching and creating FAQs.
+This is a **FAQ Management API** built with Node.js, Express, MongoDB, and Redis. It provides multilingual FAQ support and caching with Redis to improve performance. You can easily interact with the API using the provided endpoints.
 
 ---
 
-## Table of Contents
+## Demo API
 
-1. [Installation](#installation)
-2. [Environment Variables](#environment-variables)
-3. [API Documentation](#api-documentation)
-4. [Unit Testing](#unit-testing)
-5. [Contributing](#contributing)
-6. [Deployment](#deployment)
-7. [License](#license)
+You can test the API directly at:
+
+- **API Base URL**: [https://bharatfd-backend-faqs.onrender.com](https://bharatfd-backend-faqs.onrender.com)
+- **API FAQ Endpoint**: [https://bharatfd-backend-faqs.onrender.com/api/faqs/](https://bharatfd-backend-faqs.onrender.com/api/faqs/)
+
+---
+
+## Features
+
+- Multilingual FAQ support (supports Hindi, Bengali, Russian, etc.)
+- Caching with Redis to improve performance
+- REST API to manage FAQs
+- Admin panel available for managing FAQs (not yet implemented fully)
+
+---
+
+## Technologies Used
+
+- **Node.js** - JavaScript runtime
+- **Express.js** - Web framework for Node.js
+- **MongoDB Atlas** - NoSQL database for storing FAQs
+- **Redis** - In-memory database for caching
+- **AdminJS** - For admin panel interface (not fully implemented)
 
 ---
 
 ## Installation
 
-To set up the project locally, follow these steps:
+1. **Clone the repository**:
 
-### 1. Clone the repository
-```bash
-git clone https://github.com/your-username/faq-backend.git
-cd faq-backend
-2. Install dependencies
+   ```bash
+   git clone https://github.com/yourusername/bharatfd-backend-faqs.git
+   cd bharatfd-backend-faqs
+Install dependencies:
+
+Using npm:
+
 bash
 Copy
 Edit
 npm install
-3. Set up environment variables
-Create a .env file at the root of the project with the following environment variables:
+Or using yarn:
 
-ini
+bash
 Copy
 Edit
-MONGO_URI=your_mongo_connection_string
-REDIS_URL=your_redis_connection_string
-PORT=8000
-Make sure to replace the values with your actual MongoDB and Redis connection strings.
+yarn install
+Setup environment variables:
 
-4. Start the application
+Create a .env file in the root of the project and add your MongoDB and Redis configurations:
+
+env
+Copy
+Edit
+MONGO_URI=your_mongodb_connection_string
+REDIS_URL=your_redis_connection_url
+Replace your_mongodb_connection_string and your_redis_connection_url with your actual MongoDB Atlas and Redis credentials.
+
+Run the application locally:
+
+Using npm:
+
 bash
 Copy
 Edit
 npm start
-Your backend API should now be running on http://localhost:8000.
+Or using yarn:
 
-Environment Variables
-Variable	Description
-MONGO_URI	MongoDB connection string
-REDIS_URL	Redis connection string
-PORT	Port to run the server (default: 8000)
-API Documentation
-1. GET /faqs
-Fetch all FAQs in the requested language. You can pass a lang query parameter to get the FAQs in a specific language. If no lang parameter is provided, the default language is English (en).
-
-Input
-Query Parameters:
-lang (optional): Language code for translation (e.g., en, hi, bn, etc.). Defaults to en if not provided.
-Example Request:
 bash
 Copy
 Edit
-GET /faqs?lang=hi
-Example Response (Success):
+yarn start
+The application will start running at http://localhost:5000.
+
+API Endpoints
+1. GET /api/faqs/
+Description: Get all FAQs, with support for dynamic language translation.
+
+Query Parameters:
+
+lang: Optional query parameter for the language of the FAQs (default is en).
+Supported languages: en, hi, bn, ru, etc.
+Example:
+
+bash
+Copy
+Edit
+curl -X GET "https://bharatfd-backend-faqs.onrender.com/api/faqs?lang=hi"
+Response: Returns an array of FAQs in the requested language.
+
 json
 Copy
 Edit
 [
-    {
-        "question": "Node.js क्या है?",
-        "answer": "Node.js एक जावास्क्रिप्ट रनटाइम है जो Chrome के V8 इंजन पर बनाया गया है।"
+  {
+    "question": "What is your name?",
+    "answer": "मेरा नाम क्या है?",
+    "translations": {
+      "hi": {
+        "question": "आपका नाम क्या है?",
+        "answer": "आपका नाम क्या है?"
+      }
     }
+  }
 ]
-Example Response (Error):
-json
-Copy
-Edit
-{
-  "message": "Error fetching FAQs"
-}
-2. POST /faqs
-Create a new FAQ. You can provide a question and answer in the request body. The FAQ will be translated into multiple languages (e.g., Hindi, Bengali) and cached in Redis.
+2. POST /api/faqs/
+Description: Create a new FAQ. The system will automatically translate the FAQ into multiple languages.
 
-Input
 Body Parameters:
-question: The FAQ question (string).
-answer: The FAQ answer (string).
-Example Request:
+
+question (string): The question for the FAQ.
+answer (string): The answer for the FAQ.
+Example:
+
 bash
 Copy
 Edit
-POST /faqs
-Content-Type: application/json
+curl -X POST "https://bharatfd-backend-faqs.onrender.com/api/faqs/" \
+     -H "Content-Type: application/json" \
+     -d '{
+           "question": "What is the capital of India?",
+           "answer": "New Delhi"
+         }'
+Response: Returns the created FAQ with translations in other languages.
 
-{
-  "question": "What is Node.js?",
-  "answer": "Node.js is a JavaScript runtime built on Chrome's V8 JavaScript engine."
-}
-Example Response (Success):
 json
 Copy
 Edit
 {
-  "question": "What is Node.js?",
-  "answer": "Node.js is a JavaScript runtime built on Chrome's V8 JavaScript engine."
+  "question": "What is the capital of India?",
+  "answer": "New Delhi",
+  "translations": {
+    "hi": {
+      "question": "भारत की राजधानी क्या है?",
+      "answer": "नई दिल्ली"
+    },
+    "bn": {
+      "question": "ভারতের রাজধানী কী?",
+      "answer": "নিউ দিল্লি"
+    }
+  }
 }
-Example Response (Error):
-json
-Copy
-Edit
-{
-  "message": "Error creating FAQ"
-}
-Unit Testing
-Unit tests are written using Mocha and Chai. To run the tests, follow these steps:
+Admin Panel (Not Fully Implemented Yet)
+An Admin Panel will be implemented soon to manage FAQs. Currently, this feature is under development, but it will provide a user-friendly interface to:
 
-1. Run the tests:
-bash
-Copy
-Edit
-npm run test
-2. Test Coverage:
-The tests check the following:
-
-API endpoints: Ensure the correct data is returned for valid requests.
-Translation logic: Ensure that FAQs are correctly translated into multiple languages and cached in Redis.
-Contributing
-Contributions are welcome! Please follow these steps to contribute:
-
-Fork the repository.
-Create a new branch (git checkout -b feature-name).
-Make your changes.
-Commit your changes (git commit -m 'Add new feature').
-Push to the branch (git push origin feature-name).
-Open a pull request with a description of your changes.
+Add, edit, or delete FAQs
+View FAQs in multiple languages
+Manage translations
 Deployment
-You can deploy the project using Render. Follow these steps:
+This API is hosted on Render. You can deploy your own instance or use the live version available at:
 
-1. Create a Render account and link your GitHub repository.
-2. Create a new Web Service on Render with the following settings:
-Build Command: npm install
-Start Command: npm start
-3. Configure environment variables for MongoDB and Redis (MONGO_URI, REDIS_URL).
-4. Click Create Web Service to deploy your application.
+Live URL: https://bharatfd-backend-faqs.onrender.com
+Testing
+You can test the API directly on the following endpoints:
+
+GET /api/faqs/ to fetch all FAQs.
+POST /api/faqs/ to create a new FAQ.
+Use Postman or curl to make requests to these endpoints, or interact with the live API directly from your browser.
+
+Contributing
+Feel free to fork the repository and contribute by opening an issue or submitting a pull request. Contributions are welcome!
+
+Steps for contributing:
+Fork this repository.
+Create a new branch.
+Make your changes and commit them.
+Push the branch to your forked repository.
+Create a pull request to the main repository.
 License
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+markdown
+Copy
+Edit
+
+### Key Sections:
+1. **API Base URL** & **FAQ Endpoint**: I included these so users can quickly see how to interact with your live API.
+2. **Installation**: Clear instructions to clone and run your project locally.
+3. **API Endpoints**: Added the full documentation for your `GET` and `POST` API routes, with examples.
+4. **Admin Panel**: Placeholder for the admin panel, as you mentioned it’s not fully implemented yet.
+5. **Testing**: Clear directions on testing the API.
+
+Just copy-paste this into your `README.md` file, and you'll be good to go!
